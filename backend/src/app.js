@@ -24,8 +24,9 @@ app.use(helmet({
 // CORS Configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:5173', // Vite dev server
+  'http://localhost:5173',
   'http://localhost:3001',
+  'https://url-shortener-bl1x.onrender.com'
 ];
 
 app.use(cors({
