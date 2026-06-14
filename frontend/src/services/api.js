@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'https://linkpulse-backend-954s.onrender.com/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
