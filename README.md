@@ -132,23 +132,41 @@ Winston	Logging
 📂 Project Structure
 
 linkpulse/
+
 │
+
 ├── frontend/
+
 │   ├── src/
+
 │   ├── components/
+
 │   ├── pages/
+
 │   └── services/
+
 │
+
 ├── backend/
+
 │   ├── src/
+
 │   ├── controllers/
+
 │   ├── middleware/
+
 │   ├── routes/
+
 │   ├── models/
+
 │   └── config/
+
+
 │
 └── README.md
+
 📸 Screenshots
+
 Dashboard
 
 https://drive.google.com/file/d/11qTWeQztGX2gcATyXTdn5ewRE3GSNwqH/view?usp=drive_link
