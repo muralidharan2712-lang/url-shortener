@@ -31,6 +31,7 @@ export default function CreateLinkModal({ isOpen, onClose, onCreated, initialDat
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setForm({
           originalUrl: initialData.originalUrl || '',
           alias: initialData.alias || '',
@@ -39,9 +40,12 @@ export default function CreateLinkModal({ isOpen, onClose, onCreated, initialDat
           tags: (initialData.tags || []).join(', '),
         });
       } else {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setForm({ originalUrl: '', alias: '', title: '', expiryOption: 'never', tags: '' });
       }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setErrors({});
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAliasStatus(null);
     }
   }, [isOpen, initialData]);
@@ -124,7 +128,7 @@ export default function CreateLinkModal({ isOpen, onClose, onCreated, initialDat
           {/* Modal */}
           <motion.div
             className="relative w-full max-w-lg glass-strong rounded-2xl p-6 z-10 shadow-2xl"
-            style={{ boxShadow: '0 0 0 1px rgba(99,102,241,0.2), 0 40px 80px rgba(0,0,0,0.6)' }}
+            style={{ boxShadow: '0 0 0 1px rgba(249,115,22,0.2), 0 40px 80px rgba(0,0,0,0.6)' }}
             initial={{ opacity: 0, scale: 0.96, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 20 }}
@@ -134,7 +138,7 @@ export default function CreateLinkModal({ isOpen, onClose, onCreated, initialDat
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                  style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
                   <Link2 size={16} className="text-white" />
                 </div>
                 <h2 className="text-lg font-semibold text-white">

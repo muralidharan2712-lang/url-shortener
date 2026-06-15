@@ -37,17 +37,17 @@ export default function QRModal({ isOpen, link, onClose }) {
           />
           <motion.div
             className="relative glass-strong rounded-2xl p-6 z-10 w-full max-w-sm text-center"
-            style={{ boxShadow: '0 0 0 1px rgba(99,102,241,0.2), 0 40px 80px rgba(0,0,0,0.6)' }}
+            style={{ boxShadow: '0 0 0 1px rgba(249,115,22,0.2), 0 40px 80px rgba(0,0,0,0.6)' }}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
           >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <QrCode size={18} className="text-indigo-400" />
+                <QrCode size={18} className="text-orange-500" />
                 <h2 className="text-base font-semibold text-white">QR Code</h2>
               </div>
-              <button onClick={onClose} className="text-slate-500 hover:text-slate-200">
+              <button onClick={onClose} className="text-slate-500 hover:text-slate-200 transition-colors">
                 <X size={18} />
               </button>
             </div>
@@ -55,7 +55,7 @@ export default function QRModal({ isOpen, link, onClose }) {
             {/* QR image */}
             {link.qrCode ? (
               <div className="flex justify-center mb-5">
-                <div className="p-3 rounded-xl bg-white">
+                <div className="p-3 rounded-xl bg-white shadow-lg">
                   <img src={link.qrCode} alt="QR Code" className="w-48 h-48 object-contain" />
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function QRModal({ isOpen, link, onClose }) {
               href={link.shortUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center justify-center gap-1 mb-5"
+              className="text-xs text-orange-500 hover:text-orange-400 transition-colors flex items-center justify-center gap-1 mb-5"
             >
               {link.shortUrl} <ExternalLink size={11} />
             </a>

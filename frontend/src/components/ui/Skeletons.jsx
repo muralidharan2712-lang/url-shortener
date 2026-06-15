@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 
 export const Skeleton = ({ className = '' }) => (
@@ -16,7 +17,7 @@ export const StatCardSkeleton = () => (
 );
 
 export const LinkCardSkeleton = () => (
-  <div className="glass-card p-4">
+  <div className="dark-card p-4">
     <div className="flex items-start gap-3">
       <Skeleton className="w-10 h-10 rounded-lg flex-shrink-0" />
       <div className="flex-1 min-w-0">
@@ -42,23 +43,26 @@ export const TableRowSkeleton = () => (
   </tr>
 );
 
-export const ChartSkeleton = ({ height = 200 }) => (
-  <div className="relative overflow-hidden rounded-xl" style={{ height }}>
-    <Skeleton className="w-full h-full" />
-    <div className="absolute inset-0 flex items-end gap-2 p-4">
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={i}
-          className="flex-1 rounded-t-sm opacity-30"
-          style={{
-            height: `${30 + Math.random() * 60}%`,
-            background: 'rgba(99,102,241,0.3)',
-          }}
-        />
-      ))}
+export const ChartSkeleton = ({ height = 200 }) => {
+  const [bars] = useState(() => [...Array(12)].map(() => 30 + Math.random() * 60));
+  return (
+    <div className="relative overflow-hidden rounded-xl" style={{ height }}>
+      <Skeleton className="w-full h-full" />
+      <div className="absolute inset-0 flex items-end gap-2 p-4">
+        {bars.map((h, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-t-sm opacity-30"
+            style={{
+              height: `${h}%`,
+              background: 'rgba(249,115,22,0.2)',
+            }}
+          />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export const EmptyState = ({ icon: Icon, title, description, action }) => (
   <motion.div
@@ -67,8 +71,8 @@ export const EmptyState = ({ icon: Icon, title, description, action }) => (
     animate={{ opacity: 1, y: 0 }}
   >
     <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-      style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)' }}>
-      {Icon && <Icon size={28} className="text-indigo-400" />}
+      style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+      {Icon && <Icon size={28} className="text-orange-500" />}
     </div>
     <h3 className="text-lg font-semibold text-slate-200 mb-2">{title}</h3>
     <p className="text-slate-500 text-sm max-w-xs mb-6">{description}</p>
@@ -98,7 +102,7 @@ export const ErrorState = ({ message, onRetry }) => (
 
 export const LoadingSpinner = ({ size = 20, className = '' }) => (
   <div
-    className={`border-2 border-transparent border-t-indigo-500 border-r-violet-500 rounded-full animate-spin ${className}`}
+    className={`border-2 border-transparent border-t-orange-500 border-r-orange-600 rounded-full animate-spin ${className}`}
     style={{ width: size, height: size }}
   />
 );

@@ -16,10 +16,10 @@ const getPasswordStrength = (password) => {
   const levels = [
     { label: '', color: '' },
     { label: 'Very Weak', color: '#ef4444' },
-    { label: 'Weak', color: '#f97316' },
-    { label: 'Fair', color: '#eab308' },
-    { label: 'Strong', color: '#22c55e' },
-    { label: 'Very Strong', color: '#06b6d4' },
+    { label: 'Weak', color: '#ea580c' },
+    { label: 'Fair', color: '#f97316' },
+    { label: 'Strong', color: '#f97316' },
+    { label: 'Very Strong', color: '#fb923c' },
   ];
   return { score, ...levels[Math.min(score, 5)] };
 };
@@ -73,11 +73,11 @@ export default function SignupPage() {
   const strength = getPasswordStrength(form.password);
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#0a0a0f' }}>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0d1117]">
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #8b5cf6, transparent 70%)' }} />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #6366f1, transparent 70%)' }} />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #ea580c, transparent 70%)' }} />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #f97316, transparent 70%)' }} />
         {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
@@ -85,7 +85,7 @@ export default function SignupPage() {
             style={{
               width: `${4 + (i % 3) * 2}px`,
               height: `${4 + (i % 3) * 2}px`,
-              background: i % 2 === 0 ? '#6366f1' : '#a78bfa',
+              background: i % 2 === 0 ? '#f97316' : '#ea580c',
               left: `${5 + i * 12}%`,
               top: `${15 + (i % 4) * 20}%`,
               opacity: 0.25,
@@ -104,29 +104,32 @@ export default function SignupPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-              <Zap size={20} className="text-white" />
+          <div className="inline-flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(249,115,22,0.3)]" style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
+              <Zap size={24} className="text-white" />
             </div>
-            <span className="text-2xl font-bold gradient-text">LinkPulse</span>
+            <span className="text-3xl font-bold gradient-text tracking-tight">LinkPulse</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create your account</h1>
-          <p className="text-slate-400">Start shortening links for free, no credit card needed</p>
+          <h1 className="text-3xl font-bold text-[#f8fafc] mb-2 tracking-tight">Create your account</h1>
+          <p className="text-[#94a3b8]">Start shortening links for free</p>
         </motion.div>
 
         {/* Card */}
         <motion.div
-          className="glass-strong rounded-2xl p-8"
+          className="dark-card p-8 shadow-2xl relative"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
+          {/* Subtle top border highlight */}
+          <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-orange-500/50 to-transparent opacity-50" />
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Full name</label>
+              <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Full name</label>
               <div className="relative">
-                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#484f58]" />
                 <input
                   type="text"
                   value={form.name}
@@ -136,14 +139,14 @@ export default function SignupPage() {
                   autoComplete="name"
                 />
               </div>
-              {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+              {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Email address</label>
+              <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Email address</label>
               <div className="relative">
-                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#484f58]" />
                 <input
                   type="email"
                   value={form.email}
@@ -153,14 +156,14 @@ export default function SignupPage() {
                   autoComplete="email"
                 />
               </div>
-              {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-[#94a3b8] mb-1.5">Password</label>
               <div className="relative">
-                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#484f58]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={form.password}
@@ -173,45 +176,45 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#484f58] hover:text-[#94a3b8] transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-400 text-xs mt-1.5">{errors.password}</p>}
 
               {/* Strength bar */}
               {form.password && (
                 <motion.div className="mt-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <div className="flex gap-1 mb-1">
+                  <div className="flex gap-1.5 mb-1.5">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <div
                         key={i}
                         className="h-1.5 flex-1 rounded-full transition-all duration-400"
-                        style={{ background: i <= strength.score ? strength.color : 'rgba(255,255,255,0.08)' }}
+                        style={{ background: i <= strength.score ? strength.color : 'rgba(255,255,255,0.05)' }}
                       />
                     ))}
                   </div>
-                  {strength.label && <p className="text-xs" style={{ color: strength.color }}>{strength.label}</p>}
+                  {strength.label && <p className="text-xs font-medium" style={{ color: strength.color }}>{strength.label}</p>}
                 </motion.div>
               )}
 
               {/* Requirements */}
               {(showRequirements || form.password) && (
                 <motion.div
-                  className="mt-3 grid grid-cols-2 gap-1.5"
+                  className="mt-3 grid grid-cols-2 gap-2"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                 >
                   {requirements.map((req, i) => {
                     const met = req.test(form.password);
                     return (
-                      <div key={i} className="flex items-center gap-1.5">
+                      <div key={i} className="flex items-center gap-2">
                         <CheckCircle
                           size={12}
-                          style={{ color: met ? '#22c55e' : 'rgba(148,163,184,0.4)', flexShrink: 0 }}
+                          style={{ color: met ? '#f97316' : '#484f58', flexShrink: 0 }}
                         />
-                        <span className="text-xs" style={{ color: met ? '#4ade80' : 'rgba(148,163,184,0.6)' }}>
+                        <span className="text-xs font-medium" style={{ color: met ? '#fb923c' : '#8b949e' }}>
                           {req.label}
                         </span>
                       </div>
@@ -225,9 +228,9 @@ export default function SignupPage() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center gap-2 mt-2"
-              whileHover={{ scale: loading ? 1 : 1.01 }}
-              whileTap={{ scale: loading ? 1 : 0.99 }}
+              className="btn-primary w-full mt-4 py-3"
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
             >
               {loading ? (
                 <>
@@ -237,18 +240,20 @@ export default function SignupPage() {
               ) : (
                 <>
                   Create account
-                  <ArrowRight size={16} />
+                  <ArrowRight size={18} />
                 </>
               )}
             </motion.button>
           </form>
 
-          <p className="text-center text-slate-500 text-sm mt-6">
-            Already have an account?{' '}
-            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
-              Sign in
-            </Link>
-          </p>
+          <div className="mt-8 pt-6 border-t border-white/[0.05]">
+            <p className="text-center text-[#94a3b8] text-sm">
+              Already have an account?{' '}
+              <Link to="/login" className="text-orange-500 hover:text-orange-400 font-medium transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>

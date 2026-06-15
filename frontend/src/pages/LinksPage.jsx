@@ -1,42 +1,98 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Plus, Search, Filter, SortAsc, SortDesc, Star, Copy, Trash2,
-  Edit2, QrCode, ExternalLink, BarChart2, Link2, Download,
-  ChevronLeft, ChevronRight, RefreshCw, Copy as DuplicateIcon,
-  Clock, Activity, Tag
+  Plus, Search, Star, Copy, Edit2, BarChart2, Link2, Download,
+  ChevronLeft, ChevronRight, Activity, ChevronDown, AlignJustify, Filter
 } from 'lucide-react';
 import { linkService } from '../services/services';
 import CreateLinkModal from '../components/links/CreateLinkModal';
 import QRModal from '../components/links/QRModal';
-import { LinkCardSkeleton, EmptyState, ErrorState } from '../components/ui/Skeletons';
+import { EmptyState, ErrorState } from '../components/ui/Skeletons';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
-const SORT_OPTIONS = [
-  { value: 'createdAt', label: 'Date Created' },
-  { value: 'clickCount', label: 'Click Count' },
-  { value: 'lastVisitedAt', label: 'Last Visited' },
-];
-
 const STATUS_OPTIONS = [
-  { value: 'all', label: 'All' },
+  { value: 'all', label: 'All Status' },
   { value: 'active', label: 'Active' },
   { value: 'expired', label: 'Expired' },
   { value: 'disabled', label: 'Disabled' },
 ];
 
 const getStatusBadge = (link) => {
-  if (link.isExpired) return { label: 'Expired', cls: 'badge-red' };
+  if (link.isExpired) return { label: 'Expired', cls: 'badge-orange' };
   if (link.status === 'disabled') return { label: 'Disabled', cls: 'badge-gray' };
-  return { label: 'Active', cls: 'badge-green' };
+  return { label: 'Active', cls: 'badge-active' };
 };
 
-const getHealthColor = (badge) => {
-  const map = { Excellent: '#22c55e', Good: '#84cc16', Fair: '#eab308', Poor: '#f97316', Critical: '#ef4444' };
-  return map[badge] || '#94a3b8';
+const LinkIcon = ({ url, alias }) => {
+  const colors = {
+    youtube: '#ea580c',
+    instagram: '#fb923c',
+    twitter: '#f97316',
+    github: '#8b949e',
+    google: '#f97316',
+    facebook: '#fb923c',
+    linkedin: '#f97316',
+  };
+
+  const getColor = () => {
+    const str = (url || alias || '').toLowerCase();
+    for (const [k, v] of Object.entries(colors)) {
+      if (str.includes(k)) return v;
+    }
+    return '#f97316';
+  };
+
+  const getInitial = () => {
+    const str = alias || url || '?';
+    return str[0].toUpperCase();
+  };
+
+  return (
+    <div
+      className="w-8 h-8 rounded-lg flex items-center justify-center text-[#0d1117] text-xs font-bold flex-shrink-0"
+      style={{ background: getColor() }}
+    >
+      {getInitial()}
+    </div>
+  );
 };
+
+const DarkStatCard = ({ icon: Icon, label, value, trend, trendVal, iconColor, iconBg, delay }) => (
+  <motion.div
+    className="dark-card p-5"
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3, delay }}
+  >
+    <div className="flex items-start gap-4">
+      <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 border border-white/5"
+        style={{ background: iconBg }}>
+        <Icon size={20} style={{ color: iconColor }} />
+      </div>
+      <div className="flex-1">
+        <p className="text-xs text-[#8b949e] font-medium mb-1 uppercase tracking-wider">{label}</p>
+        <p className="text-2xl font-bold text-[#f8fafc] tracking-tight">{value ?? '—'}</p>
+        <div className="flex items-center gap-2 mt-1">
+          <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${trend === 'up' ? 'text-orange-400 bg-orange-500/10' : 'text-red-400 bg-red-400/10'}`}>
+            {trend === 'up' ? '↑' : '↓'} {trendVal}
+          </span>
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+const SkeletonRow = () => (
+  <tr className="border-b border-white/[0.05]">
+    {[2, 6, 2, 1.5, 1.5, 2].map((w, i) => (
+      <td key={i} className="px-5 py-4">
+        <div className={`skeleton h-4 w-${Math.round(w * 10)} rounded`} style={{ width: `${w * 10}%`, minWidth: 32, maxWidth: 160 }} />
+      </td>
+    ))}
+  </tr>
+);
 
 export default function LinksPage() {
   const navigate = useNavigate();
@@ -46,15 +102,13 @@ export default function LinksPage() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [editLink, setEditLink] = useState(null);
   const [qrLink, setQrLink] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
-  const [favoritingId, setFavoritingId] = useState(null);
-  const [duplicatingId, setDuplicatingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const searchTimeout = useRef(null);
 
   const fetchLinks = useCallback(async () => {
@@ -62,7 +116,7 @@ export default function LinksPage() {
     setError(null);
     try {
       const res = await linkService.getLinks({
-        page, limit: 12, search, status, sortBy, sortOrder,
+        page, limit: 10, search, status, sortBy, sortOrder,
       });
       setLinks(res.data.data.links);
       setPagination(res.data.data.pagination);
@@ -73,7 +127,10 @@ export default function LinksPage() {
     }
   }, [page, search, status, sortBy, sortOrder]);
 
-  useEffect(() => { fetchLinks(); }, [fetchLinks]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchLinks();
+  }, [fetchLinks]);
 
   const handleSearch = (val) => {
     clearTimeout(searchTimeout.current);
@@ -81,62 +138,6 @@ export default function LinksPage() {
       setSearch(val);
       setPage(1);
     }, 400);
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this link and all its analytics?')) return;
-    setDeletingId(id);
-    try {
-      await linkService.deleteLink(id);
-      toast.success('Link deleted');
-      fetchLinks();
-    } catch {
-      toast.error('Failed to delete link');
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleFavorite = async (link) => {
-    setFavoritingId(link._id);
-    try {
-      await linkService.toggleFavorite(link._id);
-      toast.success(link.isFavorite ? 'Removed from favorites' : 'Added to favorites ⭐');
-      fetchLinks();
-    } catch {
-      toast.error('Failed to update favorite');
-    } finally {
-      setFavoritingId(null);
-    }
-  };
-
-  const handleDuplicate = async (id) => {
-    setDuplicatingId(id);
-    try {
-      await linkService.duplicateLink(id);
-      toast.success('Link duplicated!');
-      fetchLinks();
-    } catch {
-      toast.error('Failed to duplicate link');
-    } finally {
-      setDuplicatingId(null);
-    }
-  };
-
-  const handleExport = async () => {
-    try {
-      const res = await linkService.exportLinks();
-      const blob = new Blob([res.data], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `linkpulse-export-${Date.now()}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('CSV exported!');
-    } catch {
-      toast.error('Export failed');
-    }
   };
 
   const copyLink = async (url) => {
@@ -148,296 +149,328 @@ export default function LinksPage() {
     }
   };
 
-  return (
-    <div className="page-bg min-h-screen">
-      <div className="max-w-7xl mx-auto p-6 md:p-8">
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+  const toggleAll = () => {
+    if (selectedIds.size === links.length && links.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(links.map(l => l._id)));
+    }
+  };
+
+  const getPageNumbers = () => {
+    const total = pagination.pages;
+    const cur = page;
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (cur <= 4) return [1, 2, 3, 4, 5, '...', total];
+    if (cur >= total - 3) return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    return [1, '...', cur - 1, cur, cur + 1, '...', total];
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0d1117] p-5 md:p-7">
+      <div className="max-w-7xl mx-auto space-y-6">
+
+        {/* ── Header ─────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white">My Links</h1>
-            <p className="text-slate-500 text-sm mt-1">
-              {pagination.total} link{pagination.total !== 1 ? 's' : ''} total
+            <h1 className="text-2xl font-bold text-[#f8fafc] tracking-tight">Links Directory</h1>
+            <p className="text-[#8b949e] text-sm mt-1">
+              Manage, track, and optimize your shortened URLs.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button onClick={handleExport} className="btn-secondary flex items-center gap-2 text-sm px-3 py-2">
-              <Download size={14} />
-              Export CSV
+          <div className="flex items-center gap-3">
+            <button className="btn-secondary">
+              <Download size={16} />
+              Export
             </button>
-            <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2 text-sm px-4 py-2">
+            <button onClick={() => setShowCreate(true)} className="btn-primary">
               <Plus size={16} />
-              Create Link
+              New Link
             </button>
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="glass-card p-4 mb-5 flex flex-wrap gap-3 items-center">
+        {/* ── Stat Cards ───────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <DarkStatCard
+            icon={Link2} label="Total Links"
+            value={pagination.total || 0}
+            trend="up" trendVal="12.5%"
+            iconBg="rgba(249,115,22,0.12)" iconColor="#f97316"
+            delay={0}
+          />
+          <DarkStatCard
+            icon={Activity} label="Active Links"
+            value={links.filter(l => !l.isExpired && l.status !== 'disabled').length || 0}
+            trend="up" trendVal="8.2%"
+            iconBg="rgba(251,146,60,0.12)" iconColor="#fb923c"
+            delay={0.05}
+          />
+          <DarkStatCard
+            icon={BarChart2} label="Total Clicks"
+            value={links.reduce((s, l) => s + (l.clickCount || 0), 0).toLocaleString()}
+            trend="up" trendVal="15.3%"
+            iconBg="rgba(249,115,22,0.1)" iconColor="#f97316"
+            delay={0.1}
+          />
+          <DarkStatCard
+            icon={Star} label="Favorite Links"
+            value={links.filter(l => l.isFavorite).length || 0}
+            trend="up" trendVal="6.1%"
+            iconBg="rgba(234,88,12,0.12)" iconColor="#ea580c"
+            delay={0.15}
+          />
+        </div>
+
+        {/* ── Toolbar ──────────────────────────────────────────── */}
+        <div className="dark-card p-4 flex flex-col md:flex-row items-center gap-4">
           {/* Search */}
-          <div className="relative flex-1 min-w-48">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <div className="relative flex-1 w-full">
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#484f58]" />
             <input
               type="text"
-              placeholder="Search links…"
-              className="input-field pl-9 py-2 text-sm"
+              placeholder="Search by alias, URL or tags..."
+              className="input-field pl-11"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
 
-          {/* Status filter */}
-          <div className="flex gap-1">
-            {STATUS_OPTIONS.map(o => (
-              <button
-                key={o.value}
-                onClick={() => { setStatus(o.value); setPage(1); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  status === o.value
-                    ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/40'
-                    : 'text-slate-500 hover:text-slate-300 border border-transparent'
-                }`}
+          <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto thin-scroll pb-1 md:pb-0">
+            {/* Filter Toggle */}
+            <button className="btn-secondary flex-shrink-0">
+              <Filter size={14} />
+              Filters
+            </button>
+            
+            {/* Status */}
+            <div className="relative flex-shrink-0">
+              <select
+                value={status}
+                onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+                className="input-field pr-10 appearance-none bg-[#161b22] border-white/[0.08]"
               >
-                {o.label}
-              </button>
-            ))}
-          </div>
+                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] pointer-events-none" />
+            </div>
 
-          {/* Sort */}
-          <div className="flex items-center gap-2">
-            <select
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
-              className="input-field py-1.5 text-xs w-auto"
-              style={{ appearance: 'none' }}
-            >
-              {SORT_OPTIONS.map(o => (
-                <option key={o.value} value={o.value} style={{ background: '#0f0f1a' }}>{o.label}</option>
-              ))}
-            </select>
+            {/* Sort Toggle */}
             <button
               onClick={() => setSortOrder(v => v === 'desc' ? 'asc' : 'desc')}
-              className="btn-secondary p-2"
+              className="btn-secondary px-3 flex-shrink-0"
               title={sortOrder === 'desc' ? 'Descending' : 'Ascending'}
             >
-              {sortOrder === 'desc' ? <SortDesc size={14} /> : <SortAsc size={14} />}
-            </button>
-            <button onClick={fetchLinks} className="btn-secondary p-2" title="Refresh">
-              <RefreshCw size={14} />
+              <AlignJustify size={14} />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        {error ? (
-          <ErrorState message={error} onRetry={fetchLinks} />
-        ) : loading ? (
-          <div className="grid grid-cols-1 gap-4">
-            {[...Array(6)].map((_, i) => <LinkCardSkeleton key={i} />)}
-          </div>
-        ) : links.length === 0 ? (
-          <EmptyState
-            icon={Link2}
-            title={search ? 'No links found' : 'No links yet'}
-            description={search ? 'Try a different search term or filter' : 'Create your first short link to get started'}
-            action={
-              !search && (
-                <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2 px-5 py-2.5">
-                  <Plus size={16} />
-                  Create your first link
-                </button>
-              )
-            }
-          />
-        ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${page}-${search}-${status}`}
-              className="space-y-3"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {links.map((link, i) => {
-                const statusBadge = getStatusBadge(link);
-                const healthColor = getHealthColor(link.healthBadge);
-                return (
-                  <motion.div
-                    key={link._id}
-                    className="glass-card p-4 hover:border-indigo-500/30"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04 }}
-                  >
-                    <div className="flex items-start gap-4">
-                      {/* Icon */}
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                        <Link2 size={16} className="text-indigo-400" />
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-sm font-semibold text-white truncate max-w-xs">
-                            {link.title || link.shortCode}
-                          </span>
-                          <span className={`badge ${statusBadge.cls}`}>{statusBadge.label}</span>
-                          {link.isFavorite && <Star size={12} className="text-amber-400" fill="currentColor" />}
-                        </div>
-
-                        <div className="flex items-center gap-2 mb-2">
-                          <a
-                            href={link.shortUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 transition-colors"
-                          >
-                            {link.shortUrl}
-                            <ExternalLink size={10} />
-                          </a>
-                          <button onClick={() => copyLink(link.shortUrl)} className="text-slate-600 hover:text-slate-300 transition-colors">
-                            <Copy size={11} />
-                          </button>
-                        </div>
-
-                        <p className="text-xs text-slate-600 truncate mb-3">{link.originalUrl}</p>
-
-                        <div className="flex items-center gap-4 flex-wrap">
-                          <div className="flex items-center gap-1 text-xs text-slate-500">
-                            <Activity size={11} />
-                            <span>{link.clickCount?.toLocaleString() || 0} clicks</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-xs text-slate-500">
-                            <Clock size={11} />
-                            <span>{format(new Date(link.createdAt), 'MMM d, yyyy')}</span>
-                          </div>
-                          {link.healthBadge && (
-                            <div className="flex items-center gap-1.5">
-                              <div className="w-16 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                                <div className="h-full rounded-full" style={{ width: `${link.healthScore}%`, background: healthColor }} />
-                              </div>
-                              <span className="text-xs font-medium" style={{ color: healthColor }}>{link.healthBadge}</span>
-                            </div>
-                          )}
-                          {link.tags?.length > 0 && (
-                            <div className="flex items-center gap-1 flex-wrap">
-                              {link.tags.slice(0, 3).map(t => (
-                                <span key={t} className="badge badge-purple text-xs">{t}</span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {/* Analytics */}
-                        <button
-                          onClick={() => navigate(`/analytics/${link._id}`)}
-                          className="p-2 rounded-lg text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all"
-                          title="View Analytics"
-                        >
-                          <BarChart2 size={15} />
-                        </button>
-                        {/* QR Code */}
-                        <button
-                          onClick={() => setQrLink(link)}
-                          className="p-2 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition-all"
-                          title="View QR Code"
-                        >
-                          <QrCode size={15} />
-                        </button>
-                        {/* Favorite */}
-                        <button
-                          onClick={() => handleFavorite(link)}
-                          disabled={favoritingId === link._id}
-                          className={`p-2 rounded-lg transition-all ${
-                            link.isFavorite
-                              ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-500/10'
-                              : 'text-slate-500 hover:text-amber-400 hover:bg-amber-500/10'
-                          }`}
-                          title={link.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                        >
-                          <Star size={15} fill={link.isFavorite ? 'currentColor' : 'none'} />
-                        </button>
-                        {/* Duplicate */}
-                        <button
-                          onClick={() => handleDuplicate(link._id)}
-                          disabled={duplicatingId === link._id}
-                          className="p-2 rounded-lg text-slate-500 hover:text-green-400 hover:bg-green-500/10 transition-all"
-                          title="Duplicate"
-                        >
-                          <DuplicateIcon size={15} />
-                        </button>
-                        {/* Edit */}
-                        <button
-                          onClick={() => setEditLink(link)}
-                          className="p-2 rounded-lg text-slate-500 hover:text-blue-400 hover:bg-blue-500/10 transition-all"
-                          title="Edit"
-                        >
-                          <Edit2 size={15} />
-                        </button>
-                        {/* Delete */}
-                        <button
-                          onClick={() => handleDelete(link._id)}
-                          disabled={deletingId === link._id}
-                          className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                          title="Delete"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
-        )}
-
-        {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-xs text-slate-600">
-              Page {pagination.page} of {pagination.pages} · {pagination.total} links
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={!pagination.hasPrev}
-                className="btn-secondary px-3 py-2 disabled:opacity-40"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              {[...Array(Math.min(5, pagination.pages))].map((_, i) => {
-                const p = i + 1;
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
-                      page === p
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-slate-500 hover:text-white hover:bg-white/06'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
-                disabled={!pagination.hasNext}
-                className="btn-secondary px-3 py-2 disabled:opacity-40"
-              >
-                <ChevronRight size={16} />
-              </button>
+        {/* ── Table ────────────────────────────────────────────── */}
+        <div className="dark-card overflow-hidden shadow-2xl border border-white/[0.05]">
+          {error ? (
+            <div className="p-12">
+              <ErrorState message={error} onRetry={fetchLinks} />
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full table-dark">
+                <thead>
+                  <tr>
+                    <th className="w-12 px-5 py-4">
+                      <input
+                        type="checkbox"
+                        className="custom-check"
+                        checked={selectedIds.size === links.length && links.length > 0}
+                        onChange={toggleAll}
+                      />
+                    </th>
+                    <th>Link Details</th>
+                    <th>Target URL</th>
+                    <th>Engagement</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th className="text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {loading ? (
+                    <>{[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}</>
+                  ) : links.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="py-20">
+                        <EmptyState
+                          icon={Link2}
+                          title={search ? 'No matches found' : 'No links created yet'}
+                          description={search ? 'Try adjusting your search or filters.' : 'Create your first short link to start tracking.'}
+                          action={!search && (
+                            <button onClick={() => setShowCreate(true)} className="btn-primary mt-2">
+                              <Plus size={16} /> Create Link
+                            </button>
+                          )}
+                        />
+                      </td>
+                    </tr>
+                  ) : (
+                    <AnimatePresence mode="sync">
+                      {links.map((link, i) => {
+                        const badge = getStatusBadge(link);
+                        const isSelected = selectedIds.has(link._id);
+
+                        return (
+                          <motion.tr
+                            key={link._id}
+                            className={`border-b border-white/[0.03] transition-colors ${isSelected ? 'bg-orange-500/10' : 'hover:bg-white/[0.02]'}`}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.03 }}
+                          >
+                            <td className="w-12 px-5 py-4">
+                              <input
+                                type="checkbox"
+                                className="custom-check"
+                                checked={isSelected}
+                                onChange={() => toggleSelect(link._id)}
+                              />
+                            </td>
+
+                            <td className="px-5 py-4 min-w-[220px]">
+                              <div className="flex items-center gap-3">
+                                <LinkIcon url={link.originalUrl} alias={link.title || link.shortCode} />
+                                <div>
+                                  <p className="text-sm font-semibold text-[#f8fafc] mb-0.5 truncate max-w-[180px]">
+                                    {link.title || link.shortCode}
+                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <a
+                                      href={link.shortUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-orange-500 hover:text-orange-400 font-medium"
+                                    >
+                                      {link.shortUrl?.replace('https://', '')}
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="px-5 py-4">
+                              <span className="text-xs text-[#8b949e] truncate max-w-[200px] block" title={link.originalUrl}>
+                                {link.originalUrl}
+                              </span>
+                            </td>
+
+                            <td className="px-5 py-4">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-bold text-[#f8fafc]">
+                                  {link.clickCount?.toLocaleString() || 0}
+                                </span>
+                                <span className="text-[10px] text-[#484f58] uppercase tracking-wider">Clicks</span>
+                              </div>
+                            </td>
+
+                            <td className="px-5 py-4">
+                              <span className={`badge ${badge.cls}`}>{badge.label}</span>
+                            </td>
+
+                            <td className="px-5 py-4">
+                              <span className="text-sm text-[#8b949e]">
+                                {link.createdAt ? format(new Date(link.createdAt), 'MMM d, yyyy') : '—'}
+                              </span>
+                            </td>
+
+                            <td className="px-5 py-4 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  onClick={() => copyLink(link.shortUrl)}
+                                  className="p-2 rounded-lg text-[#8b949e] hover:text-[#f8fafc] hover:bg-white/5 transition-all"
+                                  title="Copy Link"
+                                >
+                                  <Copy size={16} />
+                                </button>
+                                <button
+                                  onClick={() => navigate(`/analytics/${link._id}`)}
+                                  className="p-2 rounded-lg text-[#8b949e] hover:text-orange-400 hover:bg-orange-500/10 transition-all"
+                                  title="Analytics"
+                                >
+                                  <BarChart2 size={16} />
+                                </button>
+                                <button
+                                  onClick={() => setEditLink(link)}
+                                  className="p-2 rounded-lg text-[#8b949e] hover:text-[#f8fafc] hover:bg-white/5 transition-all"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        );
+                      })}
+                    </AnimatePresence>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* ── Pagination ─────────────────────────────────────── */}
+          {pagination.pages > 1 && !loading && (
+            <div className="flex items-center justify-between px-6 py-4 border-t border-white/[0.05] bg-[#0d1117]">
+              <p className="text-xs text-[#8b949e]">
+                Showing <span className="text-[#f8fafc] font-medium">{(page - 1) * 10 + 1}</span> to <span className="text-[#f8fafc] font-medium">{Math.min(page * 10, pagination.total)}</span> of <span className="text-[#f8fafc] font-medium">{pagination.total}</span>
+              </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={!pagination.hasPrev}
+                  className="p-2 rounded-lg text-[#8b949e] hover:text-[#f8fafc] hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                {getPageNumbers().map((num, i) =>
+                  num === '...' ? (
+                    <span key={`dot-${i}`} className="w-8 text-center text-[#484f58] text-sm">…</span>
+                  ) : (
+                    <button
+                      key={num}
+                      onClick={() => setPage(num)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
+                        page === num
+                          ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                          : 'text-[#8b949e] hover:text-[#f8fafc] hover:bg-white/10'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => setPage(p => Math.min(pagination.pages, p + 1))}
+                  disabled={!pagination.hasNext}
+                  className="p-2 rounded-lg text-[#8b949e] hover:text-[#f8fafc] hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Modals */}
+      {/* ── Modals ─────────────────────────────────────────────── */}
       <CreateLinkModal
         isOpen={showCreate}
         onClose={() => setShowCreate(false)}

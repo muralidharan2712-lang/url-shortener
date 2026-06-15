@@ -16,6 +16,7 @@ export default function App() {
       <AuthProvider>
         <Toaster
           position="top-right"
+          
           toastOptions={{
             duration: 3500,
             style: {
