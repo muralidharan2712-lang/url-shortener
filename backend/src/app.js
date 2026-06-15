@@ -42,31 +42,9 @@ const allowedOrigins = [
 
 // Explicit OPTIONS pre-flight handler – must come BEFORE app.use(cors())
 // so browsers get an immediate 204 for every preflight request.
-app.options('*', cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS preflight blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  optionsSuccessStatus: 204,
-}));
-
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, Postman, curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    logger.warn(`CORS blocked origin: ${origin}`);
-    callback(new Error(`CORS policy: Origin ${origin} is not allowed`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  // Expose Authorization header so the frontend can read it if needed
-  exposedHeaders: ['Authorization'],
-  optionsSuccessStatus: 204,
+  origin: true,
+  credentials: true
 }));
 
 // ─── Body Parsing ────────────────────────────────────────────────────────────
