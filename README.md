@@ -1,422 +1,564 @@
-🚀 LinkPulse – Smart URL Shortener & Analytics Platform
+<div align="center">
 
-A modern full-stack SaaS URL shortening platform with real-time analytics, QR generation, custom aliases, and secure JWT authentication. Built with React, Node.js, Express, and MongoDB.
+# ⚡ LinkPulse
 
-🌐 Live Demo
-Frontend
+### Smart Link Management & Analytics Platform
 
-🔗 https://url-shortener-bl1x.onrender.com
+**Shorten. Track. Analyse. All in one place.**
 
-Backend API
+[![Node.js](https://img.shields.io/badge/Node.js-≥18.0-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8.x-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
+[![Express](https://img.shields.io/badge/Express-4.x-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
-🔗 https://linkpulse-backend-954s.onrender.com
+</div>
 
-Youtube link
-https://youtu.be/ls9ZMF_fBNI?feature=shared
+---
 
+## 📖 Table of Contents
 
-📖 Table of Contents
-Overview
-Features
-Tech Stack
-Architecture
-Project Structure
-Screenshots
-Installation
-Environment Variables
-API Reference
-Authentication Flow
-Security Features
-Deployment
-Future Enhancements
-Contributing
-License
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+- [Environment Variables](#-environment-variables)
+- [API Reference](#-api-reference)
+- [Authentication](#-authentication)
+- [Security](#-security)
+- [Deployment](#-deployment)
+- [Screenshots](#-screenshots)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-🌟 Overview
+---
 
-LinkPulse is a production-ready URL shortening and analytics platform that enables users to:
+## 🌟 Overview
 
-✅ Create short URLs
+**LinkPulse** is a full-stack, production-ready URL shortener and analytics platform built as a SaaS product. It lets users create short links, track every click in real time, and visualise traffic patterns through a modern dark-theme dashboard — all behind a secure JWT-based authentication system.
 
-✅ Track clicks in real time
+Whether you're a developer sharing project links, a marketer tracking campaign performance, or a business monitoring audience engagement, LinkPulse gives you the data you need in a clean, minimal interface.
 
-✅ Analyze visitor behavior
+> **Live Demo:** [https://url-shortener-bl1x.onrender.com](https://url-shortener-bl1x.onrender.com)  
+> **API Base URL:** [https://linkpulse-backend-954s.onrender.com](https://linkpulse-backend-954s.onrender.com)
 
-✅ Generate QR codes
+---
 
-✅ Monitor performance through a modern analytics dashboard
+## ✨ Features
 
-Designed for developers, marketers, startups, and businesses needing detailed link performance insights.
+### 🔗 Link Management
+- Create short URLs with auto-generated codes using `nanoid`
+- Set custom aliases for branded short links
+- Add optional expiry dates — links auto-deactivate after expiry
+- Toggle links active/inactive without deleting them
+- Favourite links for quick access
+- QR code generation for every link
+- Bulk link operations
 
-✨ Key Features
-🔗 URL Management
-Short URL generation using NanoID
-Custom branded aliases
-Expiry date support
-Active / Inactive toggle
-Favourite links
-QR code generation
-Bulk operations
+### 📊 Analytics & Insights
+- Real-time click tracking per link
+- Per-visit metadata: browser, device type, OS, country (via User-Agent + IP)
+- 14-day click trend area chart with Clicks vs Unique Clicks
+- Top countries breakdown with animated progress bars and donut chart
+- Device breakdown: Mobile / Desktop / Tablet / Other
+- Browser analytics: Chrome, Safari, Firefox, Edge, Other
+- Top performing links table with sortable columns (CTR, clicks, growth)
+- Recent activity feed with live event types (created, clicked, expired, updated)
 
-📊 Real-Time Analytics
-Click tracking
-Unique visitor tracking
-Country analytics
-Device analytics
-Browser analytics
-Click trend charts
-Top performing links
-Recent activity feed
+### 📈 Dashboard
+- Animated stat cards: Total Clicks, Total Links, Active Links, Favourites
+- All charts powered by Recharts with smooth animations
+- Glassmorphism dark UI with purple ambient glow
+- Skeleton loading states during data fetch
+- Auto-refresh with manual refresh button
 
-📈 Dashboard
-Total Clicks
-Total Links
-Active Links
-Favourite Links
-Interactive Charts
-Recharts Data Visualization
-Auto Refresh Support
-Glassmorphism UI
+### 🔐 Authentication
+- Secure JWT-based login and registration
+- Password hashing with bcryptjs (10 salt rounds)
+- Remember Me option for extended token expiry
+- Protected routes on both frontend and backend
+- Token stored in `localStorage`, validated on every protected API call
 
-🔐 Authentication
-JWT Authentication
-Secure Login & Registration
-Remember Me Support
-Protected Routes
-Password Hashing (bcrypt)
+### 🛡️ Security
+- Helmet.js for HTTP security headers
+- CORS with explicit origin allowlist and preflight handling
+- express-rate-limit with separate limiters for API and redirects
+- express-mongo-sanitize to prevent NoSQL injection
+- express-validator for all input validation
+- Winston structured logging for audit trails
 
-🛡 Security
-Helmet.js
-Rate Limiting
-CORS Protection
-NoSQL Injection Prevention
-Input Validation
-Structured Logging
+---
 
-🛠 Tech Stack
-Frontend
-Technology	Purpose
-React 19	UI Development
-Vite	Build Tool
-Tailwind CSS v4	Styling
-Framer Motion	Animations
-Recharts	Analytics Charts
-React Router DOM	Routing
-Axios	API Calls
+## 🛠 Tech Stack
 
-Backend
-Technology	Purpose
-Node.js	Runtime
-Express.js	REST API
-MongoDB	Database
-Mongoose	ODM
-JWT	Authentication
-bcryptjs	Password Security
-NanoID	URL Generation
-Winston	Logging
+### Frontend
 
-🏗 Architecture
+| Technology | Version | Purpose |
+|---|---|---|
+| React | 19 | UI framework |
+| Vite | 8 | Build tool & dev server |
+| Tailwind CSS | v4 | Utility-first styling |
+| Framer Motion | 12 | Animations & transitions |
+| Recharts | 3 | Data visualisation charts |
+| React Router DOM | 7 | Client-side routing |
+| Axios | 1 | HTTP client |
+| Lucide React | 1 | Icon library |
+| date-fns | 4 | Date formatting |
+| react-hot-toast | 2 | Toast notifications |
 
-┌─────────────────────┐
+### Backend
 
-│      Frontend       │
+| Technology | Version | Purpose |
+|---|---|---|
+| Node.js | ≥18 | Runtime |
+| Express | 4 | HTTP framework |
+| MongoDB | — | Database |
+| Mongoose | 8 | ODM |
+| JSON Web Token | 9 | Authentication |
+| bcryptjs | 2 | Password hashing |
+| nanoid | 3 | Short code generation |
+| Helmet | 7 | Security headers |
+| CORS | 2 | Cross-origin requests |
+| express-rate-limit | 7 | Rate limiting |
+| express-validator | 7 | Input validation |
+| express-mongo-sanitize | 2 | NoSQL injection prevention |
+| Winston | 3 | Structured logging |
+| qrcode | 1 | QR code generation |
+| dotenv | 16 | Environment config |
 
-│ React + Vite        │
+---
 
-└─────────┬───────────┘
+## 🏗 Architecture
 
-          │ HTTPS
-          
-          ▼
-          
-┌─────────────────────┐
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        Browser                               │
+│  React 19 + Vite + Tailwind CSS v4 + Framer Motion          │
+│  Dashboard │ Links │ Analytics                               │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTPS  /api/*
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Express API Server                         │
+│  ┌──────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐  │
+│  │   Auth   │  │  Links   │  │ Dashboard  │  │Analytics │  │
+│  │  Routes  │  │  Routes  │  │  Routes    │  │  Routes  │  │
+│  └──────────┘  └──────────┘  └────────────┘  └──────────┘  │
+│                                                              │
+│  Middleware: Helmet │ CORS │ Rate Limit │ Sanitize │ JWT     │
+└────────────────────────┬────────────────────────────────────┘
+                         │ Mongoose ODM
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        MongoDB                               │
+│   Users │ Links │ Visits                                     │
+└─────────────────────────────────────────────────────────────┘
+```
 
-│     Express API     │
+### Data Models
 
-│ Auth │ Links │ Stats│
+```
+User           Link              Visit
+─────────      ──────────────    ──────────────────
+_id            _id               _id
+name           user (ref)        link (ref)
+email          title             visitedAt
+password       originalUrl       ip
+createdAt      shortCode         country
+               shortUrl          device
+               clickCount        browser
+               isActive          os
+               expiresAt         referrer
+               isFavorite        userAgent
+               createdAt
+               updatedAt
+```
 
-└─────────┬───────────┘
+---
 
-          │
-          
-          ▼
-          
-┌─────────────────────┐
+## 📁 Project Structure
 
-│      MongoDB        │
-
-│ Users │ Links │ Visits
-
-└─────────────────────┘
-
-
-📂 Project Structure
-
+```
 linkpulse/
-
-│
-
-├── frontend/
-
-│   ├── src/
-
-│   ├── components/
-
-│   ├── pages/
-
-│   └── services/
-
-│
-
 ├── backend/
-
 │   ├── src/
-
-│   ├── controllers/
-
-│   ├── middleware/
-
-│   ├── routes/
-
-│   ├── models/
-
-│   └── config/
-
-
+│   │   ├── app.js                 # Express app, CORS, middleware setup
+│   │   ├── server.js              # Server bootstrap, graceful shutdown
+│   │   ├── config/
+│   │   │   └── database.js        # MongoDB connection
+│   │   ├── controllers/
+│   │   │   ├── authController.js
+│   │   │   ├── linkController.js
+│   │   │   ├── dashboardController.js
+│   │   │   ├── analyticsController.js
+│   │   │   └── redirectController.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js            # JWT verification
+│   │   │   ├── errorHandler.js
+│   │   │   ├── rateLimiter.js
+│   │   │   └── validate.js
+│   │   ├── models/
+│   │   │   ├── User.js
+│   │   │   ├── Link.js
+│   │   │   └── Visit.js
+│   │   ├── routes/
+│   │   │   ├── authRoutes.js
+│   │   │   ├── linkRoutes.js
+│   │   │   ├── dashboardRoutes.js
+│   │   │   └── analyticsRoutes.js
+│   │   ├── utils/
+│   │   │   └── logger.js          # Winston logger
+│   │   └── validators/
+│   ├── .env
+│   ├── .env.example
+│   └── package.json
 │
-└── README.md
+└── frontend/
+    ├── src/
+    │   ├── components/
+    │   │   ├── auth/
+    │   │   │   └── ProtectedRoute.jsx
+    │   │   ├── layout/
+    │   │   │   └── AppLayout.jsx  # Sidebar + TopNav
+    │   │   ├── links/
+    │   │   │   ├── CreateLinkModal.jsx
+    │   │   │   └── QRModal.jsx
+    │   │   └── ui/
+    │   │       └── Skeletons.jsx
+    │   ├── contexts/
+    │   │   └── AuthContext.jsx
+    │   ├── pages/
+    │   │   ├── DashboardPage.jsx
+    │   │   ├── LinksPage.jsx
+    │   │   ├── AnalyticsListPage.jsx
+    │   │   ├── AnalyticsPage.jsx
+    │   │   ├── LoginPage.jsx
+    │   │   └── SignupPage.jsx
+    │   ├── services/
+    │   │   └── services.js        # Axios API client
+    │   ├── App.jsx
+    │   ├── main.jsx
+    │   └── index.css              # Tailwind v4 + design tokens
+    ├── .vscode/
+    │   └── settings.json
+    ├── vite.config.js
+    └── package.json
+```
 
-📸 Screenshots
+---
 
-Dashboard
+## 🚀 Getting Started
 
-https://drive.google.com/file/d/11qTWeQztGX2gcATyXTdn5ewRE3GSNwqH/view?usp=drive_link
+### Prerequisites
 
-Links Management
+- **Node.js** ≥ 18.0.0 — [Download](https://nodejs.org)
+- **MongoDB** — local install or [MongoDB Atlas](https://www.mongodb.com/atlas) free tier
+- **npm** ≥ 9 (comes with Node.js)
+- **Git**
 
-https://drive.google.com/file/d/1WdaHvLBiJrRRjWwzoMwhIbfjcU7-JHGe/view?usp=drive_link
+---
 
-Analytics
+### Backend Setup
 
-https://drive.google.com/file/d/1J52tcXDaQRckfnpP6MbxRoL2iIg6YpcZ/view?usp=drive_link
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/linkpulse.git
+cd linkpulse/backend
 
-https://drive.google.com/file/d/1Leiz51vKVe7u18CuVDYFpQ5EzJ4xq3GZ/view?usp=drive_link
-
-New Link
-
-https://drive.google.com/file/d/12M6tkZTN8AOk5Zjkgu-oHdhU52OT2WkU/view?usp=drive_link
-
-🚀 Installation
-Clone Repository
-git clone https://github.com/yourusername/linkpulse.git
-
-cd linkpulse
-
-Backend Setup
-cd backend
-
+# 2. Install dependencies
 npm install
 
+# 3. Create your environment file
+cp .env.example .env
+# → Edit .env with your values (see Environment Variables section)
+
+# 4. Start development server (hot-reload with nodemon)
 npm run dev
 
-Backend:
+# The API will be available at http://localhost:5000
+# Health check: http://localhost:5000/health
+```
 
-http://localhost:5000
+---
 
-Frontend Setup
+### Frontend Setup
+
+```bash
+# From the repository root
 cd frontend
 
+# 1. Install dependencies
 npm install
 
+# 2. Start the Vite dev server
 npm run dev
 
-Frontend:
+# The app will open at http://localhost:3000
+# (Vite may use 3001, 3002 etc. if the port is busy)
+```
 
-http://localhost:3000
+> **Note:** Make sure the backend is running before starting the frontend. The frontend reads the API base URL from `VITE_API_URL` — see the Environment Variables section below.
 
-🔧 Environment Variables
+---
 
-Backend
+## 🔧 Environment Variables
+
+### Backend — `backend/.env`
+
+```env
+# Server
 PORT=5000
+NODE_ENV=development           # development | production
 
-MONGODB_URI=your_mongodb_uri
+# Database
+MONGODB_URI=mongodb://localhost:27017/linkpulse
 
-JWT_SECRET=your_secret
+# JWT
+JWT_SECRET=your_super_secret_key_min_32_characters_long
+JWT_EXPIRES_IN=7d              # e.g. 1d, 7d, 30d
 
-JWT_EXPIRES_IN=7d
+# URLs
+BASE_URL=http://localhost:5000           # Used to build short URLs
+FRONTEND_URL=http://localhost:3000       # Primary allowed CORS origin
 
-BASE_URL=http://localhost:5000
+# Optional: additional CORS origins (comma-separated)
+ALLOWED_ORIGINS=http://localhost:3002,https://your-production-frontend.com
 
-FRONTEND_URL=http://localhost:3000
+# Rate Limiting
+RATE_LIMIT_WINDOW_MS=900000   # 15 minutes in ms
+RATE_LIMIT_MAX=100            # Max requests per window per IP
+```
 
-Frontend
+### Frontend — `frontend/.env` (create if needed)
+
+```env
 VITE_API_URL=http://localhost:5000/api
+```
 
-📡 API Endpoints
-Authentication
+> In production on Render/Vercel/Netlify, set `VITE_API_URL` to your deployed backend URL.
 
-Method	Endpoint
-POST	/api/auth/signup
-POST	/api/auth/login
-GET	/api/auth/me
+---
 
-Links
+## 📡 API Reference
 
-Method	Endpoint
-GET	/api/links
-POST	/api/links
-PUT	/api/links/:id
-DELETE	/api/links/:id
+All protected routes require the `Authorization: Bearer <token>` header.
 
-Analytics
+### Auth
 
-Method	Endpoint
-GET	/api/analytics/:linkId
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/auth/signup` | ❌ | Register a new user |
+| `POST` | `/api/auth/login` | ❌ | Login and receive JWT |
+| `GET` | `/api/auth/me` | ✅ | Get current user profile |
 
-🔐 Authentication Flow
-User Login
-    │
-    ▼
-Generate JWT
-    │
-    ▼
-Store in LocalStorage
-    │
-    ▼
-Send Bearer Token
-    │
-    ▼
-Protected API Access
+**POST `/api/auth/signup`**
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "SecurePass123!"
+}
+```
 
-🛡 Security Features
-Feature	Description
-JWT Authentication	Secure API Access
-Helmet.js	Security Headers
-Rate Limiting	DDoS Protection
-Input Validation	Secure Inputs
-Mongo Sanitize	NoSQL Protection
-bcrypt	Password Encryption
+**POST `/api/auth/login`**
+```json
+{
+  "email": "john@example.com",
+  "password": "SecurePass123!",
+  "rememberMe": true
+}
+```
 
-☁ Deployment
-Frontend
+---
 
-Render
-Netlify
-Vercel
+### Links
 
-Backend
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/links` | ✅ | Get all links for the user |
+| `POST` | `/api/links` | ✅ | Create a new short link |
+| `GET` | `/api/links/:id` | ✅ | Get a single link by ID |
+| `PUT` | `/api/links/:id` | ✅ | Update a link |
+| `DELETE` | `/api/links/:id` | ✅ | Delete a link |
+| `PATCH` | `/api/links/:id/toggle` | ✅ | Toggle active/inactive |
+| `PATCH` | `/api/links/:id/favorite` | ✅ | Toggle favourite |
+| `GET` | `/api/links/:id/qr` | ✅ | Generate QR code |
 
-Render Web Service
+**POST `/api/links`**
+```json
+{
+  "originalUrl": "https://example.com/very/long/url",
+  "title": "My Link",
+  "customCode": "my-link",        // optional
+  "expiresAt": "2025-12-31"       // optional
+}
+```
 
-Database
-MongoDB Atlas
+---
 
-🔮 Future Enhancements
-Team Collaboration
-Custom Domains
-Advanced Analytics
-AI Traffic Insights
+### Dashboard
 
-🤝 Contributing
-git checkout -b feature/new-feature
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/dashboard/summary` | ✅ | Stats: total clicks, links, active links |
+| `GET` | `/api/dashboard/top-links` | ✅ | Top performing links (by click count) |
+| `GET` | `/api/dashboard/recent-activity` | ✅ | Latest visit events |
 
-git commit -m "feat: add new feature"
+---
 
-git push origin feature/new-feature
+### Analytics
 
-Create a Pull Request 🚀
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/analytics/:linkId` | ✅ | Full analytics for a single link |
 
-Demo Video Duration explanation
+---
 
-DEMO VIDEO LINK:
+### Redirect
 
-LinkPulse Project Demo Script
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/:shortCode` | ❌ | Redirect to original URL + record visit |
 
-0:00 – 0:20 | Project Introduction
+---
 
-Hello everyone.
-Today, I am going to demonstrate LinkPulse, an AI-powered smart link management platform. LinkPulse helps users create, manage, track, and analyze shortened URLs with real-time analytics and performance insights. The platform is designed to provide an efficient and user-friendly experience for link management and audience tracking.
+## 🔐 Authentication
 
-0:20 – 0:30 | Opening the Deployed Application
+LinkPulse uses **JWT Bearer token authentication**.
 
-Now, let me open the deployed application. This is the live version of LinkPulse, hosted online and accessible from anywhere.
+1. User registers or logs in via `/api/auth/signup` or `/api/auth/login`
+2. The API returns a signed JWT
+3. Frontend stores the token in `localStorage` under key `linkpulse_token`
+4. Every subsequent API request sends: `Authorization: Bearer <token>`
+5. The `auth.js` middleware verifies the token and attaches `req.user`
+6. On app load, the frontend calls `/api/auth/me` to validate the stored token and restore the session
 
-0:30 – 1:40 | Login Page Explanation
+---
 
-This is the Login page of LinkPulse.
+## 🛡️ Security
 
-Users can securely sign in using their registered credentials. The authentication system validates user information and ensures secure access to personal data and analytics.
+| Layer | Mechanism |
+|---|---|
+| **HTTP Headers** | `helmet()` — sets `X-Frame-Options`, `X-XSS-Protection`, `Strict-Transport-Security`, etc. |
+| **CORS** | Explicit origin allowlist + explicit `OPTIONS` preflight handler; `credentials: true` |
+| **Rate Limiting** | 100 req/15 min on `/api/*`; separate stricter limiter on redirect `/:shortCode` |
+| **NoSQL Injection** | `express-mongo-sanitize` strips `$` and `.` operators from all inputs |
+| **Input Validation** | `express-validator` validates every field on auth and link routes |
+| **Password Storage** | bcryptjs with 10 salt rounds — passwords are never stored in plaintext |
+| **JWT Security** | Tokens signed with `HS256`; secret must be ≥32 characters |
+| **Logging** | Winston logs all requests, CORS violations, and errors with timestamps |
 
-The interface is designed to be simple, responsive, and easy to use. Once the user logs in successfully, they are redirected to the main dashboard where all link management features are available.
+---
 
-1:40 – 2:41 | Dashboard Explanation
+## 🌐 Deployment
 
-This is the Dashboard section.
+### Backend on Render
 
-The dashboard provides a complete overview of the user's activity. Here, users can view:
+1. Push your code to GitHub
+2. Create a new **Web Service** on [Render](https://render.com)
+3. Connect your GitHub repository → select the `backend` root directory
+4. Set **Build Command**: `npm install`
+5. Set **Start Command**: `npm start`
+6. Add the following **Environment Variables** in Render's dashboard:
 
-- Total links created
-- Total clicks received
-- Recent link activity
-- Performance statistics
-- Quick access to important features
+```
+NODE_ENV=production
+MONGODB_URI=<your MongoDB Atlas connection string>
+JWT_SECRET=<your secure secret>
+JWT_EXPIRES_IN=7d
+BASE_URL=https://your-backend.onrender.com
+FRONTEND_URL=https://your-frontend.onrender.com
+ALLOWED_ORIGINS=https://your-frontend.onrender.com
+```
 
-The dashboard helps users monitor their link performance at a glance and make data-driven decisions.
+### Frontend on Render / Netlify / Vercel
 
-2:41 – 3:41 | My Links Page
+**Render Static Site:**
+- Root directory: `frontend`
+- Build command: `npm run build`
+- Publish directory: `dist`
+- Environment variable: `VITE_API_URL=https://your-backend.onrender.com/api`
 
-Next, we have the My Links page.
+**Vercel:**
+```bash
+cd frontend
+npx vercel --prod
+# Set VITE_API_URL in Vercel project settings
+```
 
-This section displays all the shortened links created by the user. Users can:
+**Netlify:**
+```bash
+cd frontend
+npm run build
+# Drag and drop the dist/ folder into Netlify, or connect via GitHub
+```
 
-- View existing links
-- Copy shortened URLs
-- Manage link information
-- Track individual link performance
+> ⚠️ **Important:** After deploying the frontend, add its URL to `ALLOWED_ORIGINS` in your backend's Render environment variables — otherwise CORS will block all API requests.
 
-This page serves as the central location for managing all generated links efficiently.
+---
 
-3:43 – 3:55 | Analytics Page
+## 📸 Screenshots
 
-This is the Analytics section.
+### Dashboard
+The main dashboard provides an at-a-glance view of link performance with animated stat cards, a 14-day click analytics chart, top countries breakdown, and a live activity feed — all in a glassmorphism dark theme.
 
-Here, users can analyze link performance through visual statistics and metrics. The analytics provide valuable insights into user engagement, helping users understand how their links are performing over time.
+### Links Page
+Manage all your short links from a searchable, filterable list. Create new links via a slide-in modal, copy URLs in one click, toggle active states, and open per-link analytics.
 
-4:05 – 6:40 | Live Example – YouTube Link Shortening
+### Analytics Page
+Dive deep into per-link analytics with click-over-time charts, referrer breakdown, device and browser distributions, and individual visit logs.
 
-Now, I will demonstrate a real-world example using my YouTube channel link, "VJ Siddu Vlogs."
+---
 
-First, I copy the original YouTube URL and paste it into the link creation form.
+## 🤝 Contributing
 
-After submitting the URL, LinkPulse generates a unique shortened link instantly.
+Contributions, issues and feature requests are welcome!
 
-Next, I open the shortened URL to verify that it correctly redirects users to the intended YouTube channel.
+```bash
+# 1. Fork the repo
+# 2. Create your feature branch
+git checkout -b feature/amazing-feature
 
-As users access the link, the platform automatically tracks clicks and updates analytics in real time. This demonstrates how LinkPulse can be used to simplify long URLs while collecting valuable engagement data.
+# 3. Commit your changes
+git commit -m "feat: add amazing feature"
 
-6:40 – 8:00 | Code Explanation
+# 4. Push to the branch
+git push origin feature/amazing-feature
 
-Finally, let me briefly explain the technical implementation.
+# 5. Open a Pull Request
+```
 
-The project follows a modern full-stack architecture consisting of:
+### Commit Convention
 
-- Frontend for user interaction and responsive UI
-- Backend APIs for business logic and data processing
-- Authentication system for secure user access
-- Database for storing links and analytics data
+This project follows [Conventional Commits](https://www.conventionalcommits.org/):
 
-The backend handles URL generation, click tracking, and analytics processing, while the frontend provides an intuitive interface for users to manage and monitor their links.
+| Prefix | Purpose |
+|---|---|
+| `feat:` | New feature |
+| `fix:` | Bug fix |
+| `refactor:` | Code refactor (no feature/fix) |
+| `style:` | UI/CSS changes |
+| `docs:` | Documentation |
+| `chore:` | Build, config, tooling |
 
-This architecture ensures scalability, maintainability, and a smooth user experience.
+---
 
-Thank you for watching the demonstration of LinkPulse.
+## 📄 License
 
-📄 License
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-Licensed under the MIT License.
+---
 
-👨‍💻 Author
+<div align="center">
 
-Muralidharan
+Built with ❤️ using React, Node.js, and MongoDB
 
-Built with ❤️ using React, Node.js, Express, and MongoDB.
+⭐ **If you find this project useful, please give it a star!** ⭐
+
+</div>
