@@ -22,12 +22,36 @@ app.use(helmet({
 }));
 
 // CORS Configuration
+// All origins that are permitted to call this API.
+// In production on Render, set ALLOWED_ORIGINS as a comma-separated list
+// of your production frontend URL(s) in the service environment variables.
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'http://localhost:5173',
+  // ── local development ──────────────────────────────────────────────────
+  'http://localhost:3000',
   'http://localhost:3001',
-  'https://url-shortener-bl1x.onrender.com'
+  'http://localhost:3002',   // ← added: Vite sometimes picks this port
+  'http://localhost:5173',   // ← Vite default port
+  // ── production ────────────────────────────────────────────────────────
+  'https://url-shortener-bl1x.onrender.com',
+  'https://linkpulse-backend-954s.onrender.com',
+  // ── dynamic overrides from env (comma-separated) ──────────────────────
+  ...(process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
+    : []),
 ];
+
+// Explicit OPTIONS pre-flight handler – must come BEFORE app.use(cors())
+// so browsers get an immediate 204 for every preflight request.
+app.options('*', cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS preflight blocked for origin: ${origin}`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 204,
+}));
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -40,6 +64,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  // Expose Authorization header so the frontend can read it if needed
+  exposedHeaders: ['Authorization'],
+  optionsSuccessStatus: 204,
 }));
 
 // ─── Body Parsing ────────────────────────────────────────────────────────────
