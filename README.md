@@ -112,22 +112,39 @@ NanoID	URL Generation
 Winston	Logging
 
 🏗 Architecture
+
 ┌─────────────────────┐
+
 │      Frontend       │
+
 │ React + Vite        │
+
 └─────────┬───────────┘
+
           │ HTTPS
+          
           ▼
+          
 ┌─────────────────────┐
+
 │     Express API     │
+
 │ Auth │ Links │ Stats│
+
 └─────────┬───────────┘
+
           │
+          
           ▼
+          
 ┌─────────────────────┐
+
 │      MongoDB        │
+
 │ Users │ Links │ Visits
+
 └─────────────────────┘
+
 
 📂 Project Structure
 
