@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Search, Star, Copy, Edit2, BarChart2, Link2, Download,
-  ChevronLeft, ChevronRight, Activity, ChevronDown, AlignJustify, Filter
+  ChevronLeft, ChevronRight, Activity, ChevronDown, AlignJustify, Filter, QrCode
 } from 'lucide-react';
 import { linkService } from '../services/services';
 import CreateLinkModal from '../components/links/CreateLinkModal';
@@ -111,6 +111,24 @@ export default function LinksPage() {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const searchTimeout = useRef(null);
 
+  const handleExport = async () => {
+    try {
+      const res = await linkService.exportLinks();
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `linkpulse-export-${Date.now()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('CSV exported successfully!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Export failed. Please try again.');
+    }
+  };
+
   const fetchLinks = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -187,7 +205,7 @@ export default function LinksPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="btn-secondary">
+            <button className="btn-secondary" onClick={handleExport}>
               <Download size={16} />
               Export
             </button>
@@ -397,6 +415,13 @@ export default function LinksPage() {
                                   title="Copy Link"
                                 >
                                   <Copy size={16} />
+                                </button>
+                                <button
+                                  onClick={() => setQrLink(link)}
+                                  className="p-2 rounded-lg text-[#8b949e] hover:text-orange-400 hover:bg-orange-500/10 transition-all"
+                                  title="QR Code"
+                                >
+                                  <QrCode size={16} />
                                 </button>
                                 <button
                                   onClick={() => navigate(`/analytics/${link._id}`)}

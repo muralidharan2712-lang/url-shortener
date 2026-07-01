@@ -5,6 +5,8 @@ import { ProtectedRoute, PublicRoute } from './components/auth/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import LinksPage from './pages/LinksPage';
 import AnalyticsListPage from './pages/AnalyticsListPage';
@@ -42,6 +44,8 @@ export default function App() {
           {/* Public routes */}
           <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+          <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
 
           {/* Protected routes inside AppLayout */}
           <Route

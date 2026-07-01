@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, getMe, updateProfile } = require('../controllers/authController');
+const { signup, login, getMe, updateProfile, forgotPassword, resetPassword } = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const { signupValidator, loginValidator } = require('../validators/authValidators');
 const { handleValidationErrors } = require('../middleware/validate');
@@ -23,6 +23,12 @@ router.post(
   handleValidationErrors,
   login
 );
+
+// POST /api/auth/forgot-password
+router.post('/forgot-password', authLimiter, forgotPassword);
+
+// POST /api/auth/reset-password/:token
+router.post('/reset-password/:token', authLimiter, resetPassword);
 
 // GET /api/auth/me  (protected)
 router.get('/me', authenticate, getMe);
